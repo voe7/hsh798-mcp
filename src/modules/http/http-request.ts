@@ -1,4 +1,4 @@
-import { httpClient, setAuthToken } from "./http-client";
+import { httpClient, setAuthToken } from "./http-client.js";
 
 async function get<T = any>(
     url: string,

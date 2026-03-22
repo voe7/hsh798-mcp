@@ -1,6 +1,7 @@
-import {post, setAuthToken} from "../http/http-request";
-import {buildSign} from "../util/sign";
-import {tokenRead} from "../login/JWToken"
+import {post, setAuthToken} from "../http/http-request.js";
+import {buildSign} from "../util/sign.js";
+import {tokenRead} from "../login/JWToken.js"
+import {adGift} from "./adGift.js";
 
 interface AddScoreBody {
     adId: string;
@@ -29,6 +30,9 @@ async function checkIn(weekday:number){
     }
     return await post<responBody>(`/api/v1/acc/score/score-send?sign=${sign}&s=0`,body);
 }
+// !(async ()=>{
+//     console.log(await checkIn(7));
+// })()
 export {
     checkIn,
 }

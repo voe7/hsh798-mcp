@@ -1,18 +1,18 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import {sendSMS, login, getCaptchaResult, SendSMSResult} from "../modules/login/login"
-import {LoginResponse} from "../modules/login/JWToken"
-import {getWallet} from "../modules/wallet/getWallet"
-import {checkIn} from "../modules/score/checkIn"
-import {adGift} from "../modules/score/adGift";
-import {videoGift} from "../modules/score/videoGift";
-import {DeviceManager} from "../modules/device/writer";
-import {startDevice} from "../modules/device/start";
-import {endDevice} from "../modules/device/end";
-import {getOftenUseDevices} from "../modules/device/getOftenUseDevices";
-import {setOftenUseDevice} from "../modules/device/manageOftenUseDevice";
-import {checkScore} from "../modules/score/checkScore";
+import {sendSMS, login, getCaptchaResult, SendSMSResult} from "../modules/login/login.js"
+import {tokenSet,LoginResponse} from "../modules/login/JWToken.js"
+import {getWallet} from "../modules/wallet/getWallet.js"
+import {checkIn} from "../modules/score/checkIn.js"
+import {adGift} from "../modules/score/adGift.js";
+import {videoGift} from "../modules/score/videoGift.js";
+import {DeviceManager} from "../modules/device/writer.js";
+import {startDevice} from "../modules/device/start.js";
+import {endDevice} from "../modules/device/end.js";
+import {getOftenUseDevices} from "../modules/device/getOftenUseDevices.js";
+import {setOftenUseDevice} from "../modules/device/manageOftenUseDevice.js";
+import {checkScore} from "../modules/score/checkScore.js";
 
 // 创建 MCP 服务器
 const server = new McpServer({
@@ -68,6 +68,7 @@ server.registerTool(
     },
     async ({ phone,code }) => {
         let ret:LoginResponse = await login(phone,code);
+        tokenSet(ret);
         return {
             content: [
                 {

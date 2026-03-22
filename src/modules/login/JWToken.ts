@@ -22,10 +22,9 @@ export interface LoginResponse {
     time: number;
 }
 
-// @ts-ignore
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const filePath = path.join(__dirname, "token.json");
+const ___filename = fileURLToPath(import.meta.url);
+const ___dirname = path.dirname(___filename);
+const filePath = path.join(___dirname, "token.json");
 
 function tokenSet(data: LoginResponse): void {
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf-8");

@@ -1,4 +1,4 @@
-import {setAuthToken,get} from "../http/http-request"
+import {setAuthToken,get} from "../http/http-request.js"
 
 type GeoPoint = {
     coordinates: [number, number];

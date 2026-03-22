@@ -1,6 +1,6 @@
 import axios from 'axios';
-import {basicURL, random, UA,getCaptchaResult} from "./captcha";
-import {LoginResponse} from "./JWToken"
+import {basicURL, random, UA,getCaptchaResult} from "./captcha.js";
+import {LoginResponse} from "./JWToken.js"
 
 export interface SendSMSResult {
     code: number;

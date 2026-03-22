@@ -1,5 +1,5 @@
-import {setAuthToken,get} from "../http/http-request";
-import {tokenRead} from "../login/JWToken";
+import {setAuthToken,get} from "../http/http-request.js";
+import {tokenRead} from "../login/JWToken.js";
 
 interface RootResponse {
     code: number;

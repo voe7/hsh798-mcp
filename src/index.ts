@@ -1,4 +1,4 @@
-import {StdioServerTransport,server} from "./mcp/main"
+import {StdioServerTransport,server} from "./mcp/main.js"
 
 
 // 启动 stdio transport

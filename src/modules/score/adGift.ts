@@ -1,6 +1,6 @@
-import {setAuthToken,post} from "../http/http-request";
-import {buildSign} from "../util/sign"
-import {tokenRead} from "../login/JWToken"
+import {setAuthToken,post} from "../http/http-request.js";
+import {buildSign} from "../util/sign.js"
+import {tokenRead} from "../login/JWToken.js"
 
 interface AddScoreBody {
     adId: string;
@@ -31,6 +31,9 @@ async function adGift(){
     }
     return await post<responBody>(`/api/v1/acc/score/score-send?sign=${signA}&s=0`,body);
 }
+// !(async ()=>{
+//     console.log(await adGift());
+// })()
 export {
     adGift
 }
