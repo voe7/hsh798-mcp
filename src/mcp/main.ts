@@ -7,6 +7,7 @@ import {getWallet} from "../modules/wallet/getWallet.js"
 import {checkIn} from "../modules/score/checkIn.js"
 import {adGift} from "../modules/score/adGift.js";
 import {videoGift} from "../modules/score/videoGift.js";
+import {completeDailyTasks} from "../modules/score/completeDailyTasks.js";
 import {DeviceManager} from "../modules/device/writer.js";
 import {startDevice} from "../modules/device/start.js";
 import {endDevice} from "../modules/device/end.js";
@@ -127,7 +128,7 @@ server.registerTool(
     "DAILY_AD_TASK_5",
     {
         title: "DAILY_AD_TASK_5",
-        description: "执行一次每日广告任务。该任务每日最多可完成 5 次；如需全部完成，请调用 5 次，并确保每次调用间隔不少于 5 秒。",
+        description: "执行一次每日广告任务。该任务每日最多可完成 5 次。注意：如需完成全部 5 次任务，请使用 COMPLETE_ALL_DAILY_TASKS 工具，而非重复调用此工具。",
     },
     async () => {
         let ret = await adGift();
@@ -146,7 +147,7 @@ server.registerTool(
     "DAILY_VIDEO_TASK_5",
     {
         title: "DAILY_VIDEO_TASK_5",
-        description: "执行一次每日视频任务。该任务每日最多可完成 5 次；如需全部完成，请调用 5 次，并确保每次调用间隔不少于 5 秒。",
+        description: "执行一次每日视频任务。该任务每日最多可完成 5 次。注意：如需完成全部 5 次任务，请使用 COMPLETE_ALL_DAILY_TASKS 工具，而非重复调用此工具。",
     },
     async () => {
         let ret = await videoGift();
@@ -155,6 +156,41 @@ server.registerTool(
                 {
                     type: "text",
                     text: JSON.stringify(ret),
+                },
+            ],
+        };
+    }
+);
+//批量完成所有每日任务（广告+视频）
+server.registerTool(
+    "COMPLETE_ALL_DAILY_TASKS",
+    {
+        title: "COMPLETE_ALL_DAILY_TASKS",
+        description: "批量完成每日广告任务和视频任务。默认先执行 5 次广告任务，再执行 5 次视频任务（每次间隔 5 秒，两类任务间也间隔 5 秒）。返回详细的执行统计（每类任务的成功次数、失败次数、积分增量、当前总积分）。这是完成每日任务的推荐方式，避免并发请求导致失败。",
+        inputSchema: {
+            adCount: z
+                .number()
+                .int()
+                .min(0)
+                .max(5)
+                .default(5)
+                .describe("广告任务执行次数（0-5），默认为 5"),
+            videoCount: z
+                .number()
+                .int()
+                .min(0)
+                .max(5)
+                .default(5)
+                .describe("视频任务执行次数（0-5），默认为 5"),
+        },
+    },
+    async ({ adCount, videoCount }) => {
+        const result = await completeDailyTasks(adCount, videoCount);
+        return {
+            content: [
+                {
+                    type: "text",
+                    text: JSON.stringify(result, null, 2),
                 },
             ],
         };
