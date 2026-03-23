@@ -7,6 +7,7 @@ import {getWallet} from "../modules/wallet/getWallet.js"
 import {checkIn} from "../modules/score/checkIn.js"
 import {adGift} from "../modules/score/adGift.js";
 import {videoGift} from "../modules/score/videoGift.js";
+import {completeDailyTasks} from "../modules/score/completeDailyTasks.js";
 import {DeviceManager} from "../modules/device/writer.js";
 import {startDevice} from "../modules/device/start.js";
 import {endDevice} from "../modules/device/end.js";
@@ -103,7 +104,7 @@ server.registerTool(
     "DAILY_CHECK_IN",
     {
         title: "DAILY_CHECK_IN",
-        description: "执行每日签到任务。需传入当前是本周第几天。",
+        description: "执行每日签到任务。需传入当前是本周第几天（1-7）。注意：如无特殊需求（如仅签到），推荐使用 COMPLETE_ALL_DAILY_TASKS，一次完成签到+广告+视频任务。",
         inputSchema: {
             weekday: z
                 .number()
@@ -127,7 +128,7 @@ server.registerTool(
     "DAILY_AD_TASK_5",
     {
         title: "DAILY_AD_TASK_5",
-        description: "执行一次每日广告任务。该任务每日最多可完成 5 次；如需全部完成，请调用 5 次，并确保每次调用间隔不少于 5 秒。",
+        description: "执行一次每日广告任务。该任务每日最多可完成 5 次。注意：如需完成全部 5 次任务，请使用 COMPLETE_ALL_DAILY_TASKS 工具，而非重复调用此工具。",
     },
     async () => {
         let ret = await adGift();
@@ -146,7 +147,7 @@ server.registerTool(
     "DAILY_VIDEO_TASK_5",
     {
         title: "DAILY_VIDEO_TASK_5",
-        description: "执行一次每日视频任务。该任务每日最多可完成 5 次；如需全部完成，请调用 5 次，并确保每次调用间隔不少于 5 秒。",
+        description: "执行一次每日视频任务。该任务每日最多可完成 5 次。注意：如需完成全部 5 次任务，请使用 COMPLETE_ALL_DAILY_TASKS 工具，而非重复调用此工具。",
     },
     async () => {
         let ret = await videoGift();
@@ -155,6 +156,49 @@ server.registerTool(
                 {
                     type: "text",
                     text: JSON.stringify(ret),
+                },
+            ],
+        };
+    }
+);
+//批量完成所有每日任务（广告+视频）
+server.registerTool(
+    "COMPLETE_ALL_DAILY_TASKS",
+    {
+        title: "COMPLETE_ALL_DAILY_TASKS",
+        description: "批量完成每日全部任务。默认先执行 1 次签到，再执行 5 次广告任务，最后执行 5 次视频任务（每次间隔 5 秒，任务类型切换间也间隔 5 秒）。返回详细执行统计（签到/广告/视频各自的成功次数、失败次数、积分增量与当前总积分）。当需求是“完成所有任务”时，应优先调用此工具，不要单独调用 DAILY_CHECK_IN。",
+        inputSchema: {
+            weekday: z
+                .number()
+                .int()
+                .min(1)
+                .max(7)
+                .optional()
+                .describe("签到使用的星期（1-7），不传则默认按当前日期自动计算"),
+            adCount: z
+                .number()
+                .int()
+                .min(0)
+                .max(5)
+                .default(5)
+                .describe("广告任务执行次数（0-5），默认为 5"),
+            videoCount: z
+                .number()
+                .int()
+                .min(0)
+                .max(5)
+                .default(5)
+                .describe("视频任务执行次数（0-5），默认为 5"),
+        },
+    },
+    async (params: { weekday?: number; adCount: number; videoCount: number }) => {
+        const { weekday, adCount, videoCount } = params;
+        const result = await completeDailyTasks(weekday, adCount, videoCount);
+        return {
+            content: [
+                {
+                    type: "text",
+                    text: JSON.stringify(result, null, 2),
                 },
             ],
         };
