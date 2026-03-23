@@ -1,6 +1,7 @@
 import { adGift } from "./adGift.js";
 import { videoGift } from "./videoGift.js";
 import { checkScore } from "./checkScore.js";
+import { checkIn } from "./checkIn.js";
 
 interface TaskAttempt {
     attempt: number;
@@ -18,6 +19,7 @@ interface TaskResult {
 }
 
 interface CompleteDailyTasksResult {
+    checkInTask: TaskResult;
     adTask: TaskResult;
     videoTask: TaskResult;
     totalPointsGained: number;
@@ -88,16 +90,23 @@ async function executeTaskBatch(
 }
 
 /**
- * 完成所有每日任务（广告任务 + 视频任务）
+ * 完成所有每日任务（签到 + 广告任务 + 视频任务）
+ * @param weekday - 本周第几天（1-7，默认按当前日期计算）
  * @param adCount - 广告任务执行次数（默认5次）
  * @param videoCount - 视频任务执行次数（默认5次）
  * @returns 所有任务执行结果统计
  */
 async function completeDailyTasks(
+    weekday?: number,
     adCount: number = 5,
     videoCount: number = 5
 ): Promise<CompleteDailyTasksResult> {
     // 参数验证
+    const currentWeekday = new Date().getDay();
+    const calculatedWeekday = currentWeekday === 0 ? 7 : currentWeekday;
+    const actualWeekday = weekday !== undefined
+        ? Math.min(Math.max(1, Math.floor(weekday)), 7)
+        : calculatedWeekday;
     const actualAdCount = Math.min(Math.max(0, adCount), 5);
     const actualVideoCount = Math.min(Math.max(0, videoCount), 5);
 
@@ -108,6 +117,14 @@ async function completeDailyTasks(
         initialPoints = scoreInfo.score;
     } catch (error) {
         console.error("获取初始积分失败:", error);
+    }
+
+    // 执行签到任务
+    const checkInTask = await executeTaskBatch(() => checkIn(actualWeekday), 1);
+
+    // 签到后等待5秒，避免请求过于频繁
+    if (actualAdCount > 0 || actualVideoCount > 0) {
+        await sleep(5000);
     }
 
     // 执行广告任务
@@ -165,6 +182,7 @@ async function completeDailyTasks(
     const totalPointsGained = parseInt(finalPoints) - parseInt(initialPoints);
 
     return {
+        checkInTask,
         adTask,
         videoTask,
         totalPointsGained,
