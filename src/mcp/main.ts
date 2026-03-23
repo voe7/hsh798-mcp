@@ -104,7 +104,7 @@ server.registerTool(
     "DAILY_CHECK_IN",
     {
         title: "DAILY_CHECK_IN",
-        description: "执行每日签到任务。需传入当前是本周第几天。",
+        description: "执行每日签到任务。需传入当前是本周第几天（1-7）。注意：如无特殊需求（如仅签到），推荐使用 COMPLETE_ALL_DAILY_TASKS，一次完成签到+广告+视频任务。",
         inputSchema: {
             weekday: z
                 .number()
@@ -166,8 +166,15 @@ server.registerTool(
     "COMPLETE_ALL_DAILY_TASKS",
     {
         title: "COMPLETE_ALL_DAILY_TASKS",
-        description: "批量完成每日广告任务和视频任务。默认先执行 5 次广告任务，再执行 5 次视频任务（每次间隔 5 秒，两类任务间也间隔 5 秒）。返回详细的执行统计（每类任务的成功次数、失败次数、积分增量、当前总积分）。这是完成每日任务的推荐方式，避免并发请求导致失败。",
+        description: "批量完成每日全部任务。默认先执行 1 次签到，再执行 5 次广告任务，最后执行 5 次视频任务（每次间隔 5 秒，任务类型切换间也间隔 5 秒）。返回详细执行统计（签到/广告/视频各自的成功次数、失败次数、积分增量与当前总积分）。当需求是“完成所有任务”时，应优先调用此工具，不要单独调用 DAILY_CHECK_IN。",
         inputSchema: {
+            weekday: z
+                .number()
+                .int()
+                .min(1)
+                .max(7)
+                .optional()
+                .describe("签到使用的星期（1-7），不传则默认按当前日期自动计算"),
             adCount: z
                 .number()
                 .int()
@@ -184,8 +191,9 @@ server.registerTool(
                 .describe("视频任务执行次数（0-5），默认为 5"),
         },
     },
-    async ({ adCount, videoCount }) => {
-        const result = await completeDailyTasks(adCount, videoCount);
+    async (params: { weekday?: number; adCount: number; videoCount: number }) => {
+        const { weekday, adCount, videoCount } = params;
+        const result = await completeDailyTasks(weekday, adCount, videoCount);
         return {
             content: [
                 {
