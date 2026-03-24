@@ -58,14 +58,6 @@ async function getOftenUseDevices() {
     let rsp =  await get<GetOftenUseDevicesResponse>("/api/v1/ui/app/master");
     return rsp.data.favos;
 }
-//
-// !(async () => {
-//     let rsp = await getOftenUseDevices();
-//     for (let i = 0; i < rsp.length; i++) {
-//         console.log(rsp[i]);
-//     }
-// })();
-
 
 export {
     getOftenUseDevices

@@ -104,3 +104,7 @@ async function getDeviceInfo(did: string):Promise<Device> {
     let rsp = await get<deviceResponse>("/api/v1/ui/app/dev/home",{did});
     return rsp.data.device;
 }
+
+export {
+    getDeviceInfo
+}
