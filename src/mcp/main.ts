@@ -14,6 +14,7 @@ import {endDevice} from "../modules/device/end.js";
 import {getOftenUseDevices} from "../modules/device/getOftenUseDevices.js";
 import {setOftenUseDevice} from "../modules/device/manageOftenUseDevice.js";
 import {checkScore} from "../modules/score/checkScore.js";
+import {setPointUseDevices} from "../modules/device/setPointUseDevices.js";
 
 // 创建 MCP 服务器
 const server = new McpServer({
@@ -388,6 +389,29 @@ server.registerTool(
     },
     async () => {
         let ret = await checkScore();
+        return {
+            content: [
+                {
+                    type: "text",
+                    text: JSON.stringify(ret)
+                },
+            ],
+        };
+    }
+);
+
+//设置或取消积分抵扣
+server.registerTool(
+    "SET_OR_RESET_POINT_USE_DEVICE",
+    {
+        title: "SET_OR_RESET_POINT_USE_DEVICE",
+        description: "设置开启设备用积分抵扣，或取消开启设备用积分抵扣。",
+        inputSchema: {
+            status:z.number().describe("操作类型：1 表示设为积分抵扣，0 表示取消低分抵扣")
+        },
+    },
+    async ({status}) => {
+        let ret = await setPointUseDevices(status);
         return {
             content: [
                 {

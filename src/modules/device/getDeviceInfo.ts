@@ -1,4 +1,4 @@
-import {setAuthToken,get} from "../http/http-request.js"
+import {get} from "../http/http-request.js"
 
 type GeoPoint = {
     coordinates: [number, number];
@@ -104,10 +104,3 @@ async function getDeviceInfo(did: string):Promise<Device> {
     let rsp = await get<deviceResponse>("/api/v1/ui/app/dev/home",{did});
     return rsp.data.device;
 }
-
-!(async () => {
-    let token: string = "1358cf76543c4f88ba6cc59b864a82fa";
-    setAuthToken(token);
-    let rsp = await getDeviceInfo("869810053232809");
-    console.log(rsp.addr);
-})();
